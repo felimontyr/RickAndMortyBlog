@@ -1,4 +1,4 @@
-"# RickAndMortyBlog" 
+# RickAndMortyBlog 
 # Visor de Personajes de Rick and Morty 🧪🚀
 
 Este proyecto es una aplicación web desarrollada en **Blazor WebAssembly** que consume la API pública de Rick and Morty y permite al usuario visualizar, filtrar y votar personajes con likes y dislikes.
