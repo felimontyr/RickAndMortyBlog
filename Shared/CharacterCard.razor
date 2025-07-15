@@ -1,0 +1,45 @@
+@using RickAndMortyVisor.Models
+
+<div class="card">
+    <img src="@Character.Image" alt="@Character.Name" class="character-img" />
+    <div class="card-body">
+        <h3>@Character.Name</h3>
+
+        <p><strong>Estado:</strong> @Character.Status</p>
+        <p><strong>Especie:</strong> @Character.Species</p>
+        <p><strong>Género:</strong> @Character.Gender</p>
+
+        <div class="vote-buttons">
+            <button class="like" @onclick="() => Vote(true)">
+                <i class="fa-solid fa-thumbs-up"></i> Like
+            </button>
+            <button class="dislike" @onclick="() => Vote(false)">
+                <i class="fa-solid fa-thumbs-down"></i> Dislike
+            </button>
+        </div>
+
+        <p class="score @scoreClass">Puntaje: @(Character.Likes - Character.Dislikes)</p>
+
+    </div>
+</div>
+
+@code {
+    
+    [Parameter] public Character Character { get; set; }
+    [Parameter] public EventCallback OnVote { get; set; }
+    private string scoreClass = "";
+
+    private async Task Vote(bool isLike)
+    {
+        if (isLike) Character.Likes++;
+        else Character.Dislikes++;
+
+        scoreClass = "score-animate";
+        StateHasChanged();
+        await Task.Delay(300);
+        scoreClass = "";
+        await OnVote.InvokeAsync();
+    }
+
+
+}

@@ -1,0 +1,74 @@
+@page "/"
+@inject RickAndMortyService RickService
+
+<h1 style="color:#00ff90; text-shadow:1px 1px 5px #00ff90; text-align: center;">
+    Personajes de Rick and Morty
+</h1>
+
+<div class="filter-bar">
+    <input type="text" placeholder="Buscar por nombre..." @bind="filterName" class="filter-control" />
+    
+    <select @bind="filterSpecies" class="filter-control">
+        <option value="">Todas las especies</option>
+        @foreach (var s in speciesList)
+        {
+            <option value="@s">@s</option>
+        }
+    </select>
+
+    <select @bind="filterStatus" class="filter-control">
+        <option value="">Todos los estados</option>
+        <option>Alive</option>
+        <option>Dead</option>
+        <option>unknown</option>
+    </select>
+</div>
+
+@if (characters is null)
+{
+    <p>Cargando personajes....</p>
+}
+else
+{
+    <div class="grid-container">
+        @foreach (var character in FilteredCharacters)
+        {
+            <CharacterCard Character="character" OnVote="ActualizarTotales" />
+        }
+    </div>
+}
+
+<p class="totals-box">
+    <i class="fa-solid fa-thumbs-up"></i> Total Likes: @TotalLikes &nbsp;•&nbsp;
+    <i class="fa-solid fa-thumbs-down"></i> Total Dislikes: @TotalDislikes
+</p>
+
+@code {
+
+    private string filterName = "";
+    private string filterSpecies = "";
+    private string filterStatus = "";
+    private List<Character>? characters;
+    private List<string> speciesList = new();
+    private int TotalLikes => characters?.Sum(c => c.Likes) ?? 0;
+    private int TotalDislikes => characters?.Sum(c => c.Dislikes) ?? 0;
+
+    private IEnumerable<Character> FilteredCharacters =>
+        characters?.Where(c =>
+            (string.IsNullOrWhiteSpace(filterName) || c.Name.Contains(filterName, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(filterSpecies) || c.Species == filterSpecies) &&
+            (string.IsNullOrWhiteSpace(filterStatus) || c.Status == filterStatus)
+        ) ?? Enumerable.Empty<Character>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        characters = await RickService.GetCharactersAsync();
+        speciesList = characters.Select(c => c.Species).Distinct().ToList();
+    }
+
+    private void ActualizarTotales()
+    {
+        StateHasChanged();
+    }
+
+}
